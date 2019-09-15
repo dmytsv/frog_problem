@@ -55,31 +55,54 @@ def possible_paths(distance):
 memo_possible_paths = memo(possible_paths)
 
 
-def expected_jumps(distance):
-    if distance == 0:
-        return 0
-    return possible_jumps(distance) / possible_paths(distance)
+# def expected_jumps(distance):
+#     if distance == 0:
+#         return 0
+#     return possible_jumps(distance) / possible_paths(distance)
 
+
+def expected_jumps(distance, jumps_made=0, probability=1.0):
+    """
+    Calculates expected number of jumps for all possible paths
+    Probability of jumps for each step calculated recursively
+    by dividing probability for current jump by possible number of following jumps
+    """
+    if distance == 0:
+        return jumps_made * probability
+    probability /= distance
+    expected_jumps_number = 0
+    for i in range(distance):
+        expected_jumps_number += memo_expected_jumps(
+            i, jumps_made + 1.0, probability)
+    return expected_jumps_number
+
+
+memo_expected_jumps = memo(expected_jumps)
 
 if __name__ == "__main__":
     try:
         arg = int(sys.argv[1])
     except:
         arg = 10
-    for i in range(1, arg + 1):
-        num_expected_jumps = expected_jumps(i)
-        # uncomment line below to make sure that expected number of jumps
-        # is equal to (distance + 1) / 2
-        # tested up to a distance of 498 jumps
-        # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-        # if (float(i)+1)/2 != num_expected_jumps:
-        #     print('', i, num_expected_jumps)
-        # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    try:
+        loop = bool(sys.argv[2])
+    except:
+        loop = False
 
-        # This line will print all values for all paths up to selected number
-        # Feel free to test with >>> python3 frog-jumps-calc.py {distance}
-        num_possible_paths = possible_paths(i)
-        num_possible_jumps = possible_jumps(i)
-        print(f"For a distance {i} there're {num_possible_paths} possible paths "
+    if loop:
+        for i in range(1, arg + 1):
+            # This line will print all values for all paths up to selected number
+            # Feel free to test with >>> python3 frog-jumps-calc.py {distance} {loop}
+            num_expected_jumps = expected_jumps(i)
+            num_possible_paths = possible_paths(i)
+            num_possible_jumps = possible_jumps(i)
+            print(f"For a distance {i} there're {num_possible_paths} possible paths "
+                  f"containing {num_possible_jumps} jumps "
+                  f"with expected jumps equal to {num_expected_jumps}.")
+    else:
+        num_expected_jumps = expected_jumps(arg)
+        num_possible_paths = possible_paths(arg)
+        num_possible_jumps = possible_jumps(arg)
+        print(f"For a distance {arg} there're {num_possible_paths} possible paths "
               f"containing {num_possible_jumps} jumps "
               f"with expected jumps equal to {num_expected_jumps}.")
